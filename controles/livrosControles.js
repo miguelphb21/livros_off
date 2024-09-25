@@ -9,7 +9,7 @@ const verLivros = (req, res) => {
             res.status(500)('Erro ao requerir o livro')
             return
         }
-    res.json(results)
+        res.json(results)
     }
     )
 }
