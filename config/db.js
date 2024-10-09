@@ -9,7 +9,7 @@ const db = mysql2.createConnection({
 
 db.connect((err)=>{
     if(err){
-        console.error('Erro ao conectar ao banco de dados')
+        console.error('Erro ao conectar ao banco de dados', err)
         return;
     }
     console.log('Conectado com sucesso')

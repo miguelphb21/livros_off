@@ -14,6 +14,9 @@ const verPedido = async (req,res) =>{
         }
     )
 }
+const fazeroPedido = (req, res) => {
+    const {id_carrinho} = req.body
+}
 
 module.exports = {
     verPedido

@@ -18,7 +18,7 @@ const livroEscolhidoPeloUsuario = (req, res)=>{
     const {id} = req.params
     
     db.query(
-        'SELECT * FROM livros WHERE id=?',[id],
+        'SELECT * FROM livros WHERE id=?', [id],
         (err, results)=>{
             if (err){
                 console.error('erro ao requerer livro')
@@ -31,12 +31,13 @@ const livroEscolhidoPeloUsuario = (req, res)=>{
 }
 
 
+
 module.exports = {
 
     // modficação nos dados dos livros
     verLivros,
     // Mostrar livro preciso
-    livroEscolhidoPeloUsuario,
+    livroEscolhidoPeloUsuario
 
 
     // adicionarLivroNoEstoque,

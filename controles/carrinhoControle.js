@@ -58,6 +58,40 @@ const atualizarPedidoTodo = (req, res)=>{
     );
 }
 
+const fazerUmaAtualizacaoParcial = (req, res) => {
+    const {id} = req.params;
+    const fields = req.body;
+    const query = [];
+    const values = [];
+
+    for(const[key,value] of Object.entries(fields)) {
+        query.push (`${key} = ?`);
+        values.push(value);
+    } 
+
+    values.push(id);
+
+    db.query(
+        `UPDATE transactions SET ${query.join(',')} WHERE id = ?`,
+        values,
+        (err,results) => {
+        if(err) {
+            console.error('Erro ao atualizar transação', err);
+            res.status(500).send('Erro ao adicionar transação');
+        return;
+        }
+
+    // verifica se nenhuma linha foi afetada pela consulta
+    if(results.affectedRows===0){
+        res.status(404).send('Transação não encontrada');
+        return;
+    }
+
+    res.send('Transação atualizada com sucesso');
+    }
+    );
+};
+
 const deletarItemDoCarrinho = (req, res)=>{
     const {id} = req.params
     db.query(
@@ -66,9 +100,13 @@ const deletarItemDoCarrinho = (req, res)=>{
         (err, results)=>{
             if (err){
                 console.error('Erro ao deletar tabela', err)
-                res.status(404).send('Erro ao Deletar a tabela', err)
+                res.status(500).send('Erro ao Deletar a tabela', err)
                 return
             }
+            if(results.affectedRows===0){
+                res.status(404).send('Transação não encontrada');
+                return;
+              }
             res.send('Item deletado com sucesso!')
         }
     )
@@ -79,6 +117,6 @@ module.exports = {
     mandarParaOCarrinho,
     verCarrinho,
     atualizarPedidoTodo,
-
+    fazerUmaAtualizacaoParcial,
     deletarItemDoCarrinho
 }
