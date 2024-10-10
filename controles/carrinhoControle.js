@@ -106,12 +106,16 @@ const deletarItemDoCarrinho = (req, res)=>{
             if(results.affectedRows===0){
                 res.status(404).send('Transação não encontrada');
                 return;
-              }
+            }
+            
             res.send('Item deletado com sucesso!')
         }
     )
 }
 
+const concluirCompra = (req, res)=>{
+   
+}
 
 module.exports = {
     mandarParaOCarrinho,

@@ -2,8 +2,7 @@ const db = require ('../config/db.js')
 
 
 const verPedido = async (req, res) => {
-    const {pedido_entregue} = req.body 
-    const [id] = await db.promise().query('SELECT * FROM pedido WHERE pedido_entregue', [pedido_entregue]);
+
     db.query(
         
         `
@@ -24,14 +23,21 @@ const verPedido = async (req, res) => {
         (err, results) => {
             const {pedido_entregue} = req.body
             if (err) {
-                console.error(err);
+                console.error('Erro ao ver pedidos', err);
                 res.status(500).send('Erro ao buscar pedido');
             } 
-            else if(pedido_entregue === 0){
-                res.json(results);
-            }else{
-                res.send('pedido entregue')
-            }
+
+            const matriz = results
+            
+            const pedidosNaoEntregue = matriz.map((valor)=>{
+                if (valor.pedido_entregue === 0){
+                    matriz.push(valor)
+                }
+                return matriz
+            })
+            res.json(pedidosNaoEntregue)
+
+
         }
     );
 };
