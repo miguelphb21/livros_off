@@ -19,11 +19,13 @@ const verCarrinho = (req, res)=>{
 }
 
 const mandarParaOCarrinho = (req, res)=>{
-    const { id_livro, quantidade, forma_de_pagamento,valor_total, data_adicao} = req.body;
+    const { id_livro, quantidade, forma_de_pagamento, data_adicao} = req.body;
     const {id_cliente} = req.params;
+    const {valor_do_produto} = req.body
+    const valorTotal = valor_do_produto * quantidade
 
             db.query(
-                `INSERT INTO carrinho (id_cliente, id_livro, quantidade, forma_de_pagamento,valor_total, data_adicao) VALUES (?, ?, ?, ?, ?, ?)`,[ id_cliente, id_livro, quantidade, forma_de_pagamento, valor_total,data_adicao],
+                `INSERT INTO carrinho (id_cliente, id_livro, quantidade, forma_de_pagamento,valor_total, data_adicao) VALUES (?, ?, ?, ?, ?, ?)`,[ id_cliente, id_livro, quantidade, forma_de_pagamento, valorTotal,data_adicao],
                 (err,results)=>{
                         if(err){
                             console.error('Erro ao adicionar dado')

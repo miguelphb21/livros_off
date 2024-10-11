@@ -5,6 +5,6 @@ const Middleware = require('../middlewares/middlewares')
 
 router.get('/pedidos/:id',  livrosControles.verPedido)
 
-router.post('/pedido')
+router.get('/pedidos', livrosControles.verTodosOsPedidos)
 
 module.exports = router
