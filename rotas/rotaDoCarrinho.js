@@ -5,12 +5,16 @@ const middleware = require('../middlewares/middlewares.js')
 const carrinhoControle = require('../controles/carrinhoControle.js')
 
 // Adiconar o item para o carrinho
-router.get('/carrinho/:id', middleware, carrinhoControle.verCarrinho)
+// C
+router.get('/carrinho/:id_cliente', middleware, carrinhoControle.verCarrinho)
+//R
+router.post('/addcarrinho/:id_cliente', middleware, carrinhoControle.addItemNoCarrinho)
+//U
+router.put('/atualizarcarrinho/:id_carrinho', carrinhoControle.atualizarPedidoTodo)
+//U
 
-router.post('/addcarrinho/:id', middleware, carrinhoControle.mandarParaOCarrinho)
-
-router.put('/atualizarpedido/:id', carrinhoControle.atualizarPedidoTodo)
-
+router.patch('/atualizaritem/:id',carrinhoControle.fazerUmaAtualizacaoParcial)
+//D
 router.delete('/deletarItem/:id', middleware, carrinhoControle.deletarItemDoCarrinho)
 
 module.exports = router

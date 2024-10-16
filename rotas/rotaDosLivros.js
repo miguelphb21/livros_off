@@ -5,6 +5,13 @@ const middleware = require('../middlewares/middlewares')
 
 router.get('/livros', middleware,livrosControles.verLivros)
 // ver seu livro especifico pelo id
-router.get('/livros/:id', middleware,livrosControles.livroEscolhidoPeloUsuario)
+router.get('/livros/:id_livro', middleware,livrosControles.livroEscolhidoPeloUsuario)
+
+router.post('/adicionar-livro',livrosControles.adicionarLivro)
+
+router.patch('/atualizar-livro/:id',livrosControles.atualizarLivro)
+
+router.delete('/deletar-livro/:id', livrosControles.deletarLivro)
+
 
 module.exports = router

@@ -1,12 +1,14 @@
-const db = require('../config/db')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
+const db = require('../config/db');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const sendEmail = require('../services/emailServices.js').sendEmail;
 
 const registroDeUsuario = async (req, res) =>{
 
     
 
-    const {nome, sobrenome, data_de_nascimento, sexo, telefone, estado, cidade, bairro, rua, numero, email, senha} = req.body
+    const {nome,data_de_nascimento,endereco,sexo,email,senha} = req.body
 
     try{
         const[existingUser] = await db.promise().query('SELECT * FROM clientes WHERE email=?',[email])
@@ -18,8 +20,8 @@ const registroDeUsuario = async (req, res) =>{
         const senhaEncriptografada = await bcrypt.hash(senha , 10)
 
         await db.promise().query(
-            'INSERT INTO clientes ( nome, sobrenome, data_de_nascimento, sexo, telefone, estado, cidade, bairro, rua, numero, email, senha) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [nome, sobrenome, data_de_nascimento, sexo, telefone, estado, cidade, bairro, rua, numero, email, senhaEncriptografada]
+            'INSERT INTO clientes ( nome,data_de_nascimento,endereco,sexo,email,senha) VALUES (?,?,?,?,?,?)',
+            [nome,data_de_nascimento,endereco, sexo,email, senhaEncriptografada]
         )
         res.status(201).send('Usuario registrado com sucesso')
     }
@@ -29,7 +31,6 @@ const registroDeUsuario = async (req, res) =>{
     }
 
 }
-
 const logarUsuario = async (req, res) => {
     const {email, senha} = req.body
     try {
@@ -54,11 +55,11 @@ const logarUsuario = async (req, res) => {
         res.status(500).send('Erro ao autenticar usuário')
     }
 }
-const recuperacaoDeSenha = async (req, res) => {
+const requerirNovaSenha  = async (req, res) => {
     const { email } = req.body;
 
     try {
-        const [user] = await db.promise().query('SELECT * FROM users WHERE email = ?', [email]);
+        const [user] = await db.promise().query('SELECT * FROM clientes WHERE email = ?', [email]);
 
         if (user.length === 0) {
             return res.status(404).send('Usuário não encontrado');
@@ -69,7 +70,7 @@ const recuperacaoDeSenha = async (req, res) => {
         const expireDate = new Date(Date.now() + 3600000); 
 
         
-        await db.promise().query('UPDATE users SET reset_password_token = ?, reset_password_expires = ? WHERE email = ?', [token, expireDate, email]);
+        await db.promise().query('UPDATE clientes SET reset_password_token = ?, reset_password_expires = ? WHERE email = ?', [token, expireDate, email]);
 
         const resetLink = `http://localhost:3000/reset-password/${token}`; 
         sendEmail(email, 'Recuperação de Senha', `Por favor, clique no link para redefinir sua senha: ${resetLink}`);
@@ -83,11 +84,11 @@ const recuperacaoDeSenha = async (req, res) => {
 };
   
 
-const redefinirSenha = async (req, res) => {
+const resetarSenha = async (req, res) => {
     const { token, newPassword } = req.body;
 
     try {
-        const [user] = await db.promise().query('SELECT * FROM users WHERE reset_password_token = ? AND reset_password_expires > NOW()', [token]);
+        const [user] = await db.promise().query('SELECT * FROM clientes WHERE reset_password_token = ? AND reset_password_expires > NOW()', [token]);
 
         if (user.length === 0) {
             return res.status(400).send('Token inválido ou expirado');
@@ -95,7 +96,7 @@ const redefinirSenha = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(newPassword, 10); 
 
-        await db.promise().query('UPDATE users SET password = ?, reset_password_token = NULL, reset_password_expires = NULL WHERE id = ?', [hashedPassword, user[0].id]);
+        await db.promise().query('UPDATE clientes SET senha = ?, reset_password_token = NULL, reset_password_expires = NULL WHERE id = ?', [hashedPassword, user[0].id]);
 
         res.send('Senha redefinida com sucesso');
     } 
@@ -108,6 +109,6 @@ const redefinirSenha = async (req, res) => {
 module.exports = {
     registroDeUsuario,
     logarUsuario,
-    recuperacaoDeSenha,
-    redefinirSenha
+    requerirNovaSenha,
+    resetarSenha
 }
