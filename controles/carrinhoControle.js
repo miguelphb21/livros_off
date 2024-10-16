@@ -2,6 +2,29 @@ const db = require ('../config/db.js')
 
 // id_cliente, id_livro, quantidade, forma_de_pagamento, valor_total, data_adicao,
 
+const verCarrinhos = (req,res)=>{
+    db.query(
+        `  SELECT 
+            carrinho.id,
+            clientes.nome, 
+            livros.titulo, 
+            carrinho.quantidade, 
+            livros.preco * carrinho.quantidade AS valor_total,
+            carrinho.data_criacao
+            FROM clientes
+            INNER JOIN carrinho  ON clientes.id = carrinho.id_cliente
+            left JOIN livros ON livros.id = carrinho.id_livro`,
+        (err, results)=>{
+            if(err){
+            console.error('Erro ao cosultar tabelas', err);
+            res.status(404).send('Erro ao consultar tabela');
+            return
+            }
+            res.json(results)
+        }
+    )
+}
+
 const verCarrinho = (req, res)=>{
     const {id_cliente} = req.params
      db.query(
@@ -134,6 +157,7 @@ const deletarItemDoCarrinho = (req, res)=>{
 
 
 module.exports = {
+    verCarrinhos,
     addItemNoCarrinho,
     verCarrinho,
     atualizarPedidoTodo,

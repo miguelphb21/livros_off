@@ -11,4 +11,19 @@
 //         }
 //         res.status(201).send('Livro adicionado com sucesso!')
 //     })
-// }
+// }}
+
+/* 
+    {
+        "email":"gabrielphb@gmail.com",
+        "senha":"kevindvd21"
+    }, 
+    {
+        "email":"miguelphb14@gmail.com",
+        "senha":"migueldsds21"
+    },
+    {
+        "email": "matheusmonteiro@gmail.com", 
+        "senha": "matheuscarros"
+    }
+*/   
