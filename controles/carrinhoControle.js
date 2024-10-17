@@ -1,9 +1,28 @@
 const db = require ('../config/db.js')
 
-// id_cliente, id_livro, quantidade, forma_de_pagamento, valor_total, data_adicao,
+
+const addItemNoCarrinho = (req, res)=>{
+    const dataAtual = new Date() // instancia que leva com ela o valor da data atual
+    const {id_cliente} = req.params  
+    const {id_livro, quantidade} = req.body
+    const data_criacao = `${dataAtual.getFullYear()}${dataAtual.getMonth() + 1}${dataAtual.getDate()}` // codigo feito para utilizar a data atual na inserção de dados da tabela
+    db.query(
+        `insert into carrinho (id_cliente, id_livro, data_criacao, quantidade) values (?,?,?,?)`,
+        [id_cliente, id_livro,data_criacao, quantidade],
+        (err, results)=>{
+            if (err){
+                console.error('Erro ao adicionar item', err)
+                res.status(500).send('erro ao adicionar item')
+                return;
+            }
+            res.status(201).send('Item adicionado com sucesso')
+        }
+    )
+   
+}
 
 const verCarrinhos = (req,res)=>{
-    db.query(
+    db.query( // query com o método inner Join onde irá juntar dados de 2 tabelas ligadasd por id 
         `  SELECT 
             carrinho.id,
             clientes.nome, 
@@ -14,8 +33,8 @@ const verCarrinhos = (req,res)=>{
             FROM clientes
             INNER JOIN carrinho  ON clientes.id = carrinho.id_cliente
             left JOIN livros ON livros.id = carrinho.id_livro`,
-        (err, results)=>{
-            if(err){
+            (err, results)=>{
+                if(err){
             console.error('Erro ao cosultar tabelas', err);
             res.status(404).send('Erro ao consultar tabela');
             return
@@ -51,25 +70,6 @@ const verCarrinho = (req, res)=>{
     )
 }
 
-const addItemNoCarrinho = (req, res)=>{
-    const dataAtual = new Date()
-    const {id_cliente} = req.params  
-    const {id_livro, quantidade} = req.body
-    const data_criacao = `${dataAtual.getFullYear()}${dataAtual.getMonth() + 1}${dataAtual.getDate()}`
-    db.query(
-        `insert into carrinho (id_cliente, id_livro, data_criacao, quantidade) values (?,?,?,?)`,
-        [id_cliente, id_livro,data_criacao, quantidade],
-        (err, results)=>{
-            if (err){
-                console.error('Erro ao adicionar item', err)
-                res.status(500).send('erro ao adicionar item')
-                return;
-            }
-            res.status(201).send('Item adicionado com sucesso')
-        }
-    )
-   
-}
 
 const atualizarPedidoTodo = (req, res)=>{
     const dataAtual = new Date()
@@ -140,12 +140,12 @@ const deletarItemDoCarrinho = (req, res)=>{
         [id],
         (err, results)=>{
             if (err){
-                console.error('Erro ao deletar tabela', err)
-                res.status(500).send('Erro ao Deletar a tabela', err)
+                console.error('Erro ao deletar item', err)
+                res.status(500).send('Erro ao Deletar a item', err)
                 return
             }
             if(results.affectedRows===0){
-                res.status(404).send('Transação não encontrada');
+                res.status(404).send('Item não encontrado');
                 return;
             }
             

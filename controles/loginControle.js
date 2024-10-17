@@ -1,8 +1,36 @@
-const crypto = require('crypto')
-const db = require('../config/db');
+const crypto = require('crypto') // Módulo nativo do Node.js para criptografia e hashing
+const db = require('../config/db'); // importando o arquivo da conexão com o banco de dados
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../services/emailServices.js').sendEmail;
+
+
+const verTodosCLientes = (req,res)=>{
+    db.query('select * from clientes',
+        (err,results)=>{
+            if(err){
+                console.error('Erro ao consultar os clientes')
+                res.status(404).send('Erro na recuperação dos dados dos clientes')
+                return;
+            }
+            res.json(results)
+        }
+    )
+}
+
+const verCLientesSelecionados = (req,res)=>{
+    const {id} = req.params
+    db.query(
+        'select * from clientes where id=?',
+        [id],
+        (err, results)=>{
+            if(err){
+                console.error('erro ao consultar clientes')
+                res.status(404).send('Erro ao cosultar clietne especifico')
+            }
+        }
+    )
+}
 
 const registroDeUsuario = async (req, res) =>{
 
@@ -11,9 +39,17 @@ const registroDeUsuario = async (req, res) =>{
     const {nome,data_de_nascimento,endereco,sexo,email,senha} = req.body
 
     try{
-        const[existingUser] = await db.promise().query('SELECT * FROM clientes WHERE email=?',[email])
+        const existingUser = await db.promise().query('SELECT * FROM clientes WHERE email=?',[email],
+            (err,results)=>{
+                if(err){
+                    console.error('erro na rescuperação de dados')
+                    res.status(404).send('erro na rescuperação de dados')
+                }
+                res.json(results)
+            }
+        )
         
-        if(existingUser > 0 ){
+        if(existingUser[0].length > 0 ){
             return res.status(400).send('Usuario já cadastrado')
         }
 
@@ -106,9 +142,68 @@ const resetarSenha = async (req, res) => {
     }
 };
 
+const atualizarLogin = (req, res) => {
+    const {id} = req.params;
+    const campos = req.body;
+    const query = [];
+    const values = [];
+
+    for(const[key,value] of Object.entries(campos)) {
+        query.push (`${key} = ?`);
+        values.push(value);
+    } 
+
+    values.push(id);
+
+    db.query(
+        `UPDATE login SET ${query.join(',')} WHERE id = ?`,
+        values,
+        (err,results) => {
+        if(err) {
+            console.error('Erro ao atualizar transação', err);
+            res.status(500).send('Erro ao adicionar transação');
+        return;
+        }
+
+    // verifica se nenhuma linha foi afetada pela consulta
+    if(results.affectedRows===0){
+        res.status(404).send('Transação não encontrada');
+        return;
+    }
+    
+    res.send('Transação atualizada com sucesso');
+    }
+    );
+};
+
+const deletarUsuario = (req, res)=>{
+    const {id} = req.params
+    db.query(
+        `DELETE FROM cleintes WHERE id=?`,
+        [id],
+        (err, results)=>{
+            if (err){
+                console.error('Erro ao deletar cliente', err)
+                res.status(500).send('Erro ao Deletar a cliente', err)
+                return
+            }
+            if(results.affectedRows===0){
+                res.status(404).send('CLiente não encontrado');
+                return;
+            }
+            
+            res.send('Item deletado com sucesso!')
+        }
+    )
+}
+
 module.exports = {
+    verTodosCLientes,
+    verCLientesSelecionados,
     registroDeUsuario,
     logarUsuario,
     requerirNovaSenha,
-    resetarSenha
+    resetarSenha,
+    atualizarLogin,
+    deletarUsuario
 }

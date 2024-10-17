@@ -110,7 +110,8 @@ const atualizarLivro= (req, res) => {
     );
 };
 
-const deletarLivro = (req, res)=>{
+const deletarLivro = (req, res)=> {
+
     const {id} = req.params
     db.query(
         `DELETE FROM carrinho WHERE id=?`,

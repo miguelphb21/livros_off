@@ -25,5 +25,13 @@
     {
         "email": "matheusmonteiro@gmail.com", 
         "senha": "matheuscarros"
+    },
+    {
+        "email":"matheusmonteiro@gmail.com",
+        "senha":"matheus123"
+    },
+    {
+        "email":"naryphb@gmail.com",
+        "senha":"naryphb"
     }
 */   
